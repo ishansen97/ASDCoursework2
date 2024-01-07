@@ -248,7 +248,7 @@ public:
 			int budget;
 			cout << "===============" << endl;
 			cout << "Category: " << pair.first << endl;
-			cout << "Current budget: " << to_string(round(pair.second->getBudget())) << endl;
+			cout << "Current budget: " << pair.second->getBudget() << endl;
 			cout << "New budget: ";
 			cin >> budget;
 			cout << "===============";
