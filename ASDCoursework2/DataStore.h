@@ -1,6 +1,7 @@
 #pragma once
 #include "Category.h"
 #include "Transaction.h"
+#include "CategoryExpenseSummary.h"
 #include <vector>
 #include <unordered_map>
 #include <map>
@@ -19,6 +20,8 @@ public:
 			{"entertainment", new Category("entertainment", 20000)},
 			{"clothes", new Category("clothes", 10000)},
 			{"fuel", new Category("fuel", 20000)},
+			{"gifts", new Category("gifts", 10000)},
+			{"travel", new Category("travel", 60000)},
 			{"salary", new Category("salary", 0)},
 		};
 
@@ -26,7 +29,11 @@ public:
 		{
 			{1, new Transaction(1, 1500, true, "buy shoes", categories["clothes"], false)},
 			{2, new Transaction(2, 2500, true, "fueling the car", categories["fuel"], false)},
-			{3, new Transaction(3, 150500, false, "Getting salary", categories["salary"], true)}
+			{3, new Transaction(3, 2500, true, "partying", categories["entertainment"], false)},
+			{4, new Transaction(4, 5500, true, "gifts for my family", categories["gifts"], false)},
+			{5, new Transaction(5, 13500, true, "travelling to galle", categories["travel"], false)},
+			{6, new Transaction(6, 10000, true, "buy 2 shirts", categories["clothes"], false)},
+			{7, new Transaction(7, 150500, false, "Getting salary", categories["salary"], true)}
 		};
 	}
 
@@ -42,6 +49,18 @@ public:
 		}
 
 		return expenseCategories;
+	}
+
+	map<string, Category*> getIncomeCategories() { 
+		map<string, Category*> incomeCategories = {};
+		for (auto pair : categories)
+		{
+			if (pair.first == "salary") {
+				incomeCategories.insert(pair);
+			}
+		}
+
+		return incomeCategories;
 	}
 
 	void addCategory(string catName, Category* category) { categories[catName] = category; }
@@ -67,5 +86,73 @@ public:
 	}
 
 	void deleteTransaction(int id) { transactions.erase(id); }
+
+	map<string, CategoryExpenseSummary*> getExpenseSummaries() {
+		map<string, CategoryExpenseSummary*> categorySummaries = {};
+		for (auto pair : getExpenseCategories())
+		{
+			string categoryName = pair.first;
+			double expectedBudget = pair.second->getBudget();
+			double actualBudget = 0;
+			// get the calculations for each category
+			for (auto transactionPair : getTransactions())
+			{
+				Transaction* transaction = transactionPair.second;
+				if (transaction->getCategoryName() == categoryName) {
+					actualBudget += transaction->getAmount();
+				}
+			}
+
+			CategoryExpenseSummary* summary = new CategoryExpenseSummary(pair.second, expectedBudget, actualBudget);
+			categorySummaries.insert({ categoryName, summary });
+		}
+
+		return categorySummaries;
+	}
+
+	map<string, double> getIncomeSummaries() {
+		map<string, double> categorySummaries = {};
+		for (auto pair : getIncomeCategories())
+		{
+			string categoryName = pair.first;
+			double actualBudget = 0;
+			// get the calculations for each category
+			for (auto transactionPair : getTransactions())
+			{
+				Transaction* transaction = transactionPair.second;
+				if (transaction->getCategoryName() == categoryName) {
+					actualBudget += transaction->getAmount();
+				}
+			}
+
+			categorySummaries.insert({ categoryName, actualBudget });
+		}
+
+		return categorySummaries;
+	}
+
+	tuple<double, double> getBudgetTotals() {
+		auto expenseSummaries = getExpenseSummaries();
+		double expectedSum = 0, actualSum = 0;
+		for (auto expensePair : getExpenseSummaries()) {
+			expectedSum += expensePair.second->getExpectedBudget();
+			actualSum += expensePair.second->getActualBudget();
+		}
+
+		return make_tuple(expectedSum, actualSum);
+	}
+
+	double calculateBalance() {
+		double totalIncome = 0, totalExpense = 0;
+		for (auto incomePair : getIncomeSummaries()) {
+			totalIncome += incomePair.second;
+		}
+
+		for (auto expensePair : getExpenseSummaries()) {
+			totalExpense += expensePair.second->getActualBudget();
+		}
+
+		return (totalIncome - totalExpense);
+	}
 };
 

@@ -39,7 +39,7 @@ public:
 			cout << "2. View recent transactions." << endl;
 			cout << "3. Edit transaction" << endl;
 			cout << "4. Delete transaction" << endl;
-			cout << "0. Exit" << endl;
+			cout << "0. Main Menu" << endl;
 			cout << "Enter your option: ";
 			cin >> transactionOption;
 			handleTransactionOption(transactionOption);
@@ -54,7 +54,7 @@ public:
 			cout << "1. Add new category" << endl;
 			cout << "2. View category list." << endl;
 			cout << "3. Specify budgets for categories." << endl;
-			cout << "0. Exit." << endl;
+			cout << "0. Main Menu" << endl;
 			cout << "Enter your option: ";
 			cin >> categoryOption;
 			handleCategoryOption(categoryOption);
@@ -66,34 +66,37 @@ public:
 	static void handleUserOption(int option) {
 		switch (option)
 		{
-		case 1:
-			displayTransactionMenu();
-			break;
-		case 2:
-			displayCategoryMenu();
-			break;
-		default:
-			break;
+			case 1:
+				displayTransactionMenu();
+				break;
+			case 2:
+				displayCategoryMenu();
+				break;
+			case 3:
+				trackProgress();
+				break;
+			default:
+				break;
 		}
 	}
 
 	static void handleTransactionOption(int option) {
 		switch (option)
 		{
-		case 1:
-			addTransaction();
-			break;
-		case 2:
-			viewRecentTransactions();
-			break;
-		case 3:
-			editTransaction();
-			break;
-		case 4:
-			deleteTransaction();
-			break;
-		default:
-			break;
+			case 1:
+				addTransaction();
+				break;
+			case 2:
+				viewRecentTransactions();
+				break;
+			case 3:
+				editTransaction();
+				break;
+			case 4:
+				deleteTransaction();
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -233,14 +236,17 @@ public:
 		for (auto pair : store->getCategories())
 		{
 			pair.second->printDetails();
+			cout << "-------------------------" << endl;
 		}
+
+		cout << "==============================" << endl;
 	}
 
 	static void setCategoryBudget() {
 		for (auto pair : store->getExpenseCategories())
 		{
 			int budget;
-			cout << "===============";
+			cout << "===============" << endl;
 			cout << "Category: " << pair.first << endl;
 			cout << "Current budget: " << to_string(round(pair.second->getBudget())) << endl;
 			cout << "New budget: ";
@@ -250,8 +256,51 @@ public:
 			pair.second->setBudget(budget);
 		}
 
+		cout << "Budgets have been set." << endl;
+
 	}
 #pragma endregion
+
+#pragma region Track Progress operations
+	
+	static void trackProgress() {
+		string incomeHeader = "INCOME";
+		string incomeAmountHeader = "AMOUNT";
+		string header1 = "EXPENSE";
+		string header2 = "EXPECTED BUDGET";
+		string header3 = "ACTUAL BUDGET";
+		string totalHeader = "TOTAL";
+		string balanceHeader = "BALANCE";
+		// display income
+		cout << string(80, '=') << endl;
+		cout << incomeHeader << string(20 - incomeHeader.length(), ' ') << incomeAmountHeader << endl;
+		for (auto incomeSummaryPair : store->getIncomeSummaries())
+		{
+			string categoryName = incomeSummaryPair.first;
+			double amount = incomeSummaryPair.second;
+			cout << categoryName << string(20 - categoryName.length(), ' ') << amount << endl;
+		}
+		// display expenses
+		cout << string(80, '=') << endl;
+		cout << header1 << string(20 - header1.length(), ' ') << header2 << string(30 - header2.length(), ' ') << header3 << endl;
+		for (auto expenseSummaryPair : store->getExpenseSummaries())
+		{
+			string categoryName = expenseSummaryPair.first;
+			CategoryExpenseSummary* summary = expenseSummaryPair.second;
+			cout << categoryName << string(20 - categoryName.length(), ' ') << summary->getExpectedBudget() << string(40 - to_string(summary->getExpectedBudget()).length(), ' ') << summary->getActualBudget() << endl;
+		}
+		cout << string(80, '=') << endl;
+		// get the budget totals
+		auto budgetTotals = store->getBudgetTotals();
+		cout << totalHeader << string(20 - totalHeader.length(), ' ') << get<0>(budgetTotals) << string(40 - to_string(get<0>(budgetTotals)).length(), ' ') << get<1>(budgetTotals) << endl;
+
+		// get the balance
+		double balance = store->calculateBalance();
+		cout << balanceHeader << string(20 - balanceHeader.length(), ' ') << balance << endl;
+		cout << string(80, '=') << endl;
+	}
+#pragma endregion
+
 
 
 };
