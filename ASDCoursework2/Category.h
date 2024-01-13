@@ -22,17 +22,10 @@ public:
 	void setName(string catName) { categoryName = catName; }
 	void setBudget(double amount) { budgetAmount = amount; }
 
-	void printDetails() {
-		cout << "Name: " << categoryName << endl;
-		cout << "Budget: " << budgetAmount << endl;
-	}
-
-	void printDetails(int indentation) {
+	void printDetails(int indentation = 0) {
 		cout << string(indentation, '\t') << "Name: " << categoryName << endl;
 		cout << string(indentation, '\t') << "Budget: " << budgetAmount << endl;
 	}
-
-
 };
 
 

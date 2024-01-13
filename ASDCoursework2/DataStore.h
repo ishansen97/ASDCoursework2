@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <algorithm>
 using namespace std;
 
 class DataStore
@@ -132,7 +133,6 @@ public:
 	}
 
 	tuple<double, double> getBudgetTotals() {
-		auto expenseSummaries = getExpenseSummaries();
 		double expectedSum = 0, actualSum = 0;
 		for (auto expensePair : getExpenseSummaries()) {
 			expectedSum += expensePair.second->getExpectedBudget();
