@@ -38,6 +38,12 @@ public:
 		};
 	}
 
+#pragma region category stuff
+
+	bool isCategoryAvailable(string catName) {
+		return categories.find(catName) != categories.end();
+	}
+
 	map<string, Category*> getCategories() { return categories; }
 
 	map<string, Category*> getExpenseCategories() { 
@@ -66,6 +72,15 @@ public:
 
 	void addCategory(string catName, Category* category) { categories[catName] = category; }
 	Category* getCategory(string catName) { return categories.at(catName); }
+
+#pragma endregion
+
+#pragma region Transaction stuff
+
+	bool isTransactionAvailable(int transactionId) {
+		return transactions.find(transactionId) != transactions.end();
+	}
+
 	map<int, Transaction*> getTransactions() { return transactions; }
 	void addTransaction(int id, Transaction* transaction) { transactions[id] = transaction; }
 
@@ -88,6 +103,9 @@ public:
 
 	void deleteTransaction(int id) { transactions.erase(id); }
 
+#pragma endregion
+
+#pragma region Budget Calculation stuff
 	map<string, CategoryExpenseSummary*> getExpenseSummaries() {
 		map<string, CategoryExpenseSummary*> categorySummaries = {};
 		for (auto pair : getExpenseCategories())
@@ -154,5 +172,6 @@ public:
 
 		return (totalIncome - totalExpense);
 	}
+#pragma endregion
 };
 

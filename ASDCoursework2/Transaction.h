@@ -54,7 +54,7 @@ public:
 		cout << "Expense/Income: " << (isExpense ? "Expense" : "Income") << endl;
 		cout << "Note: " << note << endl;
 		cout << "===== Category =====" << endl;
-		category->printDetails();
+		category->printDetails(1);
 		cout << "Is Recurring: " << (isRecurring ? "Yes" : "No") << endl;
 	}
 };
