@@ -250,6 +250,7 @@ private:
 	static void addCategory() {
 		string categoryName;
 		double budgetAmt = -1;
+		int acctType = -1;
 		bool isExistingCategory = false;
 		int categoryInputPromptCount = 0;
 
@@ -259,19 +260,29 @@ private:
 			cin >> categoryName;
 			if (isExistingCategoryName(categoryName)) {
 				clearConsoleAndPrintMessage("This category name already exists. Please try again.");
-				categoryInputPromptCount++;
 			}
+			categoryInputPromptCount++;
 		}
 
 		while (isInvalidNumber(budgetAmt))
 		{
 			cout << "Initial budget amount: " << endl;
 			cin >> budgetAmt;
-			if (isInvalidNumber(budgetAmt))
-				clearConsoleAndPrintMessage("Invalid input. Please try again.");
+			if (isInvalidNumber(budgetAmt)) {
+				clearConsoleAndPrintMessage("Invalid input. Please try again.", &budgetAmt, -1);
+			}
 		}
 
-		Category* newCategory = new Category(categoryName, budgetAmt);
+		while (!isValidFieldOption(acctType, {0,1}))
+		{
+			cout << "Account Type (Expense = 0, Income = 1): " << endl;
+			cin >> acctType;
+			if (!isValidFieldOption(acctType, { 0,1 })) {
+				clearConsoleAndPrintMessage("Invalid input. Please try again.", &acctType, -1);
+			}
+		}
+
+		Category* newCategory = new Category(categoryName, budgetAmt, acctType);
 		store->addCategory(categoryName, newCategory);
 
 		cout << "Category added successfully." << endl;
@@ -290,7 +301,7 @@ private:
 	}
 
 	static void setCategoryBudget() {
-		for (auto pair : store->getExpenseCategories())
+		for (auto pair : store->getCategories(0))
 		{
 			double budget = -1;
 			cout << "===============" << endl;
@@ -390,7 +401,7 @@ private:
 		if (isInvalidNumber(input))
 			return false;
 
-		int size = sizeof(*options) / sizeof(*options);
+		int size = sizeof(*options);
 		return (find(options, options + size, input) != options + size);
 	}
 

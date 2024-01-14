@@ -18,12 +18,12 @@ public:
 	{
 		categories = 
 		{
-			{"entertainment", new Category("entertainment", 20000)},
-			{"clothes", new Category("clothes", 10000)},
-			{"fuel", new Category("fuel", 20000)},
-			{"gifts", new Category("gifts", 10000)},
-			{"travel", new Category("travel", 60000)},
-			{"salary", new Category("salary", 0)},
+			{"entertainment", new Category("entertainment", 20000, 0)},
+			{"clothes", new Category("clothes", 10000, 0)},
+			{"fuel", new Category("fuel", 20000, 0)},
+			{"gifts", new Category("gifts", 10000, 0)},
+			{"travel", new Category("travel", 60000, 0)},
+			{"salary", new Category("salary", 0, 1)},
 		};
 
 		transactions =
@@ -40,34 +40,18 @@ public:
 
 #pragma region category stuff
 
-	bool isCategoryAvailable(string catName) {
-		return categories.find(catName) != categories.end();
-	}
+	bool isCategoryAvailable(string catName) { return categories.find(catName) != categories.end(); }
 
 	map<string, Category*> getCategories() { return categories; }
 
-	map<string, Category*> getExpenseCategories() { 
-		map<string, Category*> expenseCategories = {};
-		for (auto pair : categories)
-		{
-			if (pair.first != "salary") {
-				expenseCategories.insert(pair);
-			}
-		}
+	map<string, Category*> getCategories(int accountType) { 
+		map<string, Category*> results;
+		auto lambdaFunc = [accountType](const pair<string, Category*>& elem) {
+			return elem.second->getAccountType() == accountType;
+		};
 
-		return expenseCategories;
-	}
-
-	map<string, Category*> getIncomeCategories() { 
-		map<string, Category*> incomeCategories = {};
-		for (auto pair : categories)
-		{
-			if (pair.first == "salary") {
-				incomeCategories.insert(pair);
-			}
-		}
-
-		return incomeCategories;
+		copy_if(categories.begin(), categories.end(), inserter(results, results.begin()), lambdaFunc);
+		return results;
 	}
 
 	void addCategory(string catName, Category* category) { categories[catName] = category; }
@@ -108,7 +92,7 @@ public:
 #pragma region Budget Calculation stuff
 	map<string, CategoryExpenseSummary*> getExpenseSummaries() {
 		map<string, CategoryExpenseSummary*> categorySummaries = {};
-		for (auto pair : getExpenseCategories())
+		for (auto pair : getCategories(0))
 		{
 			string categoryName = pair.first;
 			double expectedBudget = pair.second->getBudget();
@@ -131,7 +115,7 @@ public:
 
 	map<string, double> getIncomeSummaries() {
 		map<string, double> categorySummaries = {};
-		for (auto pair : getIncomeCategories())
+		for (auto pair : getCategories(1))
 		{
 			string categoryName = pair.first;
 			double actualBudget = 0;
