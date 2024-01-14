@@ -10,5 +10,5 @@ DataStore* Program::store;
 int main()
 {
     Program::mainMenu();    
-    //return 0;
+    return 0;
 }

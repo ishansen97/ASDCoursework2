@@ -7,29 +7,68 @@ using namespace std;
 class Program
 {
 private:
-public:
 	static DataStore* store;
+#pragma region Handling user options
 
-	static void mainMenu() {
-		Program::store = new DataStore();
-		int userOption;
-		do
+	static void handleUserOption(int option) {
+		switch (option)
 		{
-			cout << "Welcome to Expense tracking and Budgeting Application." << endl;
-			cout << "Please select your option." << endl;
-			cout << "\t 1. Manage Transactions." << endl;
-			cout << "\t 2. Manage Categories." << endl;
-			cout << "\t 3. Track your progress." << endl;
-			cout << "\t 0. Exit." << endl;
-			cout << "Enter your option: ";
-			cin >> userOption;
-
-			if (userOption != 0)
-				handleUserOption(userOption);
-
-		} while (userOption != 0);
+		case 1:
+			displayTransactionMenu();
+			break;
+		case 2:
+			displayCategoryMenu();
+			break;
+		case 3:
+			trackProgress();
+			break;
+		default:
+			cout << "Invalid input option." << endl;
+			break;
+		}
 	}
 
+	static void handleTransactionOption(int option) {
+		switch (option)
+		{
+		case 1:
+			addTransaction();
+			break;
+		case 2:
+			viewRecentTransactions();
+			break;
+		case 3:
+			editTransaction();
+			break;
+		case 4:
+			deleteTransaction();
+			break;
+		default:
+			cout << "Invalid input option." << endl;
+			break;
+		}
+	}
+
+	static void handleCategoryOption(int option) {
+		switch (option)
+		{
+		case 1:
+			addCategory();
+			break;
+		case 2:
+			viewCategories();
+			break;
+		case 3:
+			setCategoryBudget();
+			break;
+		default:
+			cout << "Invalid input option." << endl;
+			break;
+		}
+	}
+#pragma endregion
+
+#pragma region Displaying menu items
 	static void displayTransactionMenu() {
 		int transactionOption;
 		do
@@ -60,64 +99,7 @@ public:
 			handleCategoryOption(categoryOption);
 		} while (categoryOption != 0);
 	}
-
-	#pragma region Handling user options
-
-	static void handleUserOption(int option) {
-		switch (option)
-		{
-			case 1:
-				displayTransactionMenu();
-				break;
-			case 2:
-				displayCategoryMenu();
-				break;
-			case 3:
-				trackProgress();
-				break;
-			default:
-				break;
-		}
-	}
-
-	static void handleTransactionOption(int option) {
-		switch (option)
-		{
-			case 1:
-				addTransaction();
-				break;
-			case 2:
-				viewRecentTransactions();
-				break;
-			case 3:
-				editTransaction();
-				break;
-			case 4:
-				deleteTransaction();
-				break;
-			default:
-				break;
-		}
-	}
-
-	static void handleCategoryOption(int option) {
-		switch (option)
-		{
-			case 1:
-				addCategory();
-				break;
-			case 2:
-				viewCategories();
-				break;
-			case 3:
-				setCategoryBudget();
-				break;
-			default:
-				break;
-		}
-	}
-	#pragma endregion
-
+#pragma endregion
 
 #pragma region Transaction Operations
 	static void addTransaction() {
@@ -148,8 +130,8 @@ public:
 		cin >> categoryName;
 
 		// create the transaction object here.
-		category = Program::store->getCategory(categoryName);
-		int transactionId = Program::store->getLastTransactionId() + 1;
+		category = store->getCategory(categoryName);
+		int transactionId = store->getLastTransactionId() + 1;
 		Transaction* transaction = new Transaction(transactionId, amount, type, note, category, isRecurring);
 
 		Program::store->addTransaction(transactionId, transaction);
@@ -158,7 +140,7 @@ public:
 
 	static void viewRecentTransactions() {
 		cout << "===== Transaction list =====" << endl;
-		for (auto pair : Program::store->getTransactions())
+		for (auto pair : store->getTransactions())
 		{
 			pair.second->printDetails();
 			cout << "=========" << endl;
@@ -262,7 +244,7 @@ public:
 #pragma endregion
 
 #pragma region Track Progress operations
-	
+
 	static void trackProgress() {
 		string incomeHeader = "INCOME";
 		string incomeAmountHeader = "AMOUNT";
@@ -301,7 +283,53 @@ public:
 	}
 #pragma endregion
 
+#pragma region Validations
+	static void isValidOption() {}
+#pragma endregion
 
 
+public:
+
+	static void mainMenu() {
+		Program::store = new DataStore();
+		int userOption = -1;
+
+		while (userOption != 0)
+		{
+			cout << "Welcome to Expense tracking and Budgeting Application." << endl;
+			cout << "Please select your option." << endl;
+			cout << "\t 1. Manage Transactions." << endl;
+			cout << "\t 2. Manage Categories." << endl;
+			cout << "\t 3. Track your progress." << endl;
+			cout << "\t 0. Exit." << endl;
+			cout << "Enter your option: ";
+
+			if (!(cin >> userOption)) {
+				continue;
+			}
+			handleUserOption(userOption);
+		}
+		//do
+		//{
+		//	cout << "Welcome to Expense tracking and Budgeting Application." << endl;
+		//	cout << "Please select your option." << endl;
+		//	cout << "\t 1. Manage Transactions." << endl;
+		//	cout << "\t 2. Manage Categories." << endl;
+		//	cout << "\t 3. Track your progress." << endl;
+		//	cout << "\t 0. Exit." << endl;
+		//	cout << "Enter your option: ";
+
+		//	/*if (!(cin >> userOption)) {
+		//		break;
+		//	}*/
+		//	cin >> userOption;
+
+		//	if (userOption != 0)
+		//		handleUserOption(userOption);
+		//	else
+		//		continue;
+
+		//} while (userOption != 0);
+	}
 };
 
