@@ -39,6 +39,7 @@ public:
 	}
 
 	string getCategoryName() { return category->getName(); }
+	Category* getCategory() { return category; }
 
 	#pragma region setters
 	void setAmount(int amt) { amount = amt; }

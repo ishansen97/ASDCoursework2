@@ -313,7 +313,7 @@ private:
 				cin >> budget;
 				if (isInvalidNumber(budget))
 					clearConsoleAndPrintMessage("Invalid input. Please try again.", &budget, -1);
-				cout << "===============";
+				cout << "===============" << endl;
 			}
 
 			pair.second->setBudget(budget);
@@ -332,7 +332,8 @@ private:
 		string header1 = "EXPENSE";
 		string header2 = "EXPECTED BUDGET";
 		string header3 = "ACTUAL BUDGET";
-		string totalHeader = "TOTAL";
+		string expenseTotalHeader = "EXPENSE TOTAL";
+		string incomeTotalHeader = "INCOME TOTAL";
 		string balanceHeader = "BALANCE";
 		// display income
 		cout << string(80, '=') << endl;
@@ -355,7 +356,8 @@ private:
 		cout << string(80, '=') << endl;
 		// get the budget totals
 		auto budgetTotals = store->getBudgetTotals();
-		cout << totalHeader << string(20 - totalHeader.length(), ' ') << get<0>(budgetTotals) << string(40 - to_string(get<0>(budgetTotals)).length(), ' ') << get<1>(budgetTotals) << endl;
+		cout << incomeTotalHeader << string(20 - incomeTotalHeader.length(), ' ') << get<0>(budgetTotals) << endl;
+		cout << expenseTotalHeader << string(20 - expenseTotalHeader.length(), ' ') << get<1>(budgetTotals) << string(40 - to_string(get<0>(budgetTotals)).length(), ' ') << get<2>(budgetTotals) << endl;
 
 		// get the balance
 		double balance = store->calculateBalance();
