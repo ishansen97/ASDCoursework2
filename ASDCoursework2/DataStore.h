@@ -11,7 +11,7 @@ using namespace std;
 class DataStore
 {
 private:
-	map<string, Category*> categories = {};
+	map<string, Category*> categories;
 	map<int, Transaction*> transactions;
 	map<string, int> accountTypes;
 public:
@@ -44,6 +44,11 @@ public:
 			{"Income", 1}
 		};
 	}
+
+#pragma region Account Types stuff
+	map<string, int> getAccountTypes() { return accountTypes; }
+#pragma endregion
+
 
 #pragma region category stuff
 
@@ -88,18 +93,6 @@ public:
 		return results;
 	}
 
-	map<int, Transaction*> getTransactionsByAccountTypeCategoryName(int acctType, string categoryName) {
-		auto acctTypeTransactions = getTransactionsByAccountType(acctType);
-		map<int, Transaction*> results;
-		auto lambdaFunc = [categoryName](const pair<int, Transaction*>& elem) {
-			return elem.second->getCategoryName() == categoryName;
-		};
-
-		copy_if(acctTypeTransactions.begin(), acctTypeTransactions.end(), inserter(results, results.begin()), lambdaFunc);
-
-		return results;
-	}
-
 	int getLastTransactionId() {
 		if (!transactions.empty()) {
 			return (transactions.rbegin())->first;
@@ -118,23 +111,14 @@ public:
 		for (auto pair : getCategories(accountTypes["Expense"]))
 		{
 			string categoryName = pair.first;
-			//double actualBudget = 0;
 			double expectedBudget = pair.second->getBudget();
 			auto lambdaFunc = [categoryName](int initSum, const std::pair<int, Transaction*>& elem) {
 				if (elem.second->getCategoryName() == categoryName)
 					return initSum + elem.second->getAmount();
 				return initSum;
 			};
-			double actualBudget = accumulate(expenseTransactions.begin(), expenseTransactions.end(), 0, lambdaFunc);
-			// get the calculations for each category
-			/*for (auto transactionPair : expenseTransactions)
-			{
-				Transaction* transaction = transactionPair.second;
-				if (transaction->getCategoryName() == categoryName) {
-					actualBudget += transaction->getAmount();
-				}
-			}*/
 
+			double actualBudget = accumulate(expenseTransactions.begin(), expenseTransactions.end(), 0, lambdaFunc);
 			CategoryExpenseSummary* summary = new CategoryExpenseSummary(pair.second, expectedBudget, actualBudget);
 			categorySummaries.insert({ categoryName, summary });
 		}

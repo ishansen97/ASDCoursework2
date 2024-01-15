@@ -11,12 +11,6 @@ private:
 	int accountType; // expense = 0, income = 1
 
 public:
-	Category(string catName, double budgetAmt)
-	{
-		this->categoryName = catName;
-		this->budgetAmount = budgetAmt;
-	}
-
 	Category(string catName, double budgetAmt, int acctType)
 	{
 		this->categoryName = catName;
