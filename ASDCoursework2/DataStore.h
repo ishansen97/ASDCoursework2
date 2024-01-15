@@ -14,7 +14,7 @@ private:
 	map<string, Category*> categories;
 	map<int, Transaction*> transactions;
 	map<string, int> accountTypes;
-public:
+	static DataStore* storeInstance;
 	DataStore()
 	{
 		categories = 
@@ -44,7 +44,12 @@ public:
 			{"Income", 1}
 		};
 	}
-
+public:
+	static DataStore* createStore() {
+		if (storeInstance == 0)
+			storeInstance = new DataStore();
+		return storeInstance;
+	}
 #pragma region Account Types stuff
 	map<string, int> getAccountTypes() { return accountTypes; }
 #pragma endregion
@@ -101,89 +106,6 @@ public:
 	}
 
 	void deleteTransaction(int id) { transactions.erase(id); }
-
-#pragma endregion
-
-#pragma region Budget Calculation stuff
-	map<string, CategoryExpenseSummary*> getExpenseSummaries() {
-		map<string, CategoryExpenseSummary*> categorySummaries = {};
-		auto expenseTransactions = getTransactionsByAccountType(accountTypes["Expense"]);
-		for (auto pair : getCategories(accountTypes["Expense"]))
-		{
-			string categoryName = pair.first;
-			double expectedBudget = pair.second->getBudget();
-			auto lambdaFunc = [categoryName](int initSum, const std::pair<int, Transaction*>& elem) {
-				if (elem.second->getCategoryName() == categoryName)
-					return initSum + elem.second->getAmount();
-				return initSum;
-			};
-
-			double actualBudget = accumulate(expenseTransactions.begin(), expenseTransactions.end(), 0, lambdaFunc);
-			CategoryExpenseSummary* summary = new CategoryExpenseSummary(pair.second, expectedBudget, actualBudget);
-			categorySummaries.insert({ categoryName, summary });
-		}
-
-		return categorySummaries;
-	}
-
-	map<string, double> getIncomeSummaries() {
-		map<string, double> categorySummaries = {};
-		auto incomeTransactions = getTransactionsByAccountType(accountTypes["Income"]);
-		for (auto pair : getCategories(accountTypes["Income"]))
-		{
-			string categoryName = pair.first;
-			auto lambdaFunc = [categoryName](int initSum, const std::pair<int, Transaction*>& elem) {
-				if (elem.second->getCategoryName() == categoryName)
-					return initSum + elem.second->getAmount();
-				return initSum;
-			};
-
-			double actualBudget = accumulate(incomeTransactions.begin(), incomeTransactions.end(), 0, lambdaFunc);
-			categorySummaries.insert({ categoryName, actualBudget });
-		}
-
-		return categorySummaries;
-	}
-
-	tuple<double, double, double> getBudgetTotals() {
-		double expectedSum = 0, actualSum = 0, incomeSum = 0;
-		auto expenseSummaries = getExpenseSummaries();
-		auto incomeSummaries = getIncomeSummaries();
-
-		incomeSum = accumulate(incomeSummaries.begin(), incomeSummaries.end(), 0, [](int initialSum, const pair<string, double>& elem)
-			{
-				return initialSum + elem.second;
-			});
-
-		expectedSum = accumulate(expenseSummaries.begin(), expenseSummaries.end(), 0, [](int initialSum, const pair<string, CategoryExpenseSummary*>& elem)
-			{
-				return initialSum + elem.second->getExpectedBudget();
-			});
-
-		actualSum = accumulate(expenseSummaries.begin(), expenseSummaries.end(), 0, [](int initialSum, const pair<string, CategoryExpenseSummary*>& elem)
-			{
-				return initialSum + elem.second->getActualBudget();
-			});
-
-		return make_tuple(incomeSum, expectedSum, actualSum);
-	}
-
-	double calculateBalance() {
-		double totalIncome = 0, totalExpense = 0;
-		auto incomeSummaries = getIncomeSummaries();
-		auto expenseSummaries = getExpenseSummaries();
-		totalIncome = accumulate(incomeSummaries.begin(), incomeSummaries.end(), 0, [](int initSum, const pair<string, double>& elem) 
-			{
-				return initSum + elem.second;
-			});
-
-		totalExpense = accumulate(expenseSummaries.begin(), expenseSummaries.end(), 0, [](int initSum, const pair<string, CategoryExpenseSummary*>& elem)
-			{
-				return initSum + elem.second->getActualBudget();
-			});
-
-		return (totalIncome - totalExpense);
-	}
 #pragma endregion
 };
 

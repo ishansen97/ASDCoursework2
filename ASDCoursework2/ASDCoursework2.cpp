@@ -2,11 +2,12 @@
 //
 
 #include <iostream>
-#include "Category.h"
 #include "Program.h"
 using namespace std;
 
 DataStore* Program::store;
+DataStore* DataStore::storeInstance = 0;
+BudgetService Program::budgetService;
 int main()
 {
     Program::mainMenu();  

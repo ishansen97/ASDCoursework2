@@ -2,12 +2,14 @@
 #include "DataStore.h"
 #include "Transaction.h"
 #include <iostream>
+#include "BudgetService.h"
 using namespace std;
 
 class Program
 {
 private:
 	static DataStore* store;
+	static BudgetService budgetService;
 #pragma region Handling user options
 
 	static void handleUserOption(int option) {
@@ -338,7 +340,7 @@ private:
 		// display income
 		cout << string(80, '=') << endl;
 		cout << incomeHeader << string(20 - incomeHeader.length(), ' ') << incomeAmountHeader << endl;
-		for (auto incomeSummaryPair : store->getIncomeSummaries())
+		for (auto incomeSummaryPair : budgetService.getIncomeSummaries())
 		{
 			string categoryName = incomeSummaryPair.first;
 			double amount = incomeSummaryPair.second;
@@ -347,7 +349,7 @@ private:
 		// display expenses
 		cout << string(80, '=') << endl;
 		cout << header1 << string(20 - header1.length(), ' ') << header2 << string(30 - header2.length(), ' ') << header3 << endl;
-		for (auto expenseSummaryPair : store->getExpenseSummaries())
+		for (auto expenseSummaryPair : budgetService.getExpenseSummaries())
 		{
 			string categoryName = expenseSummaryPair.first;
 			CategoryExpenseSummary* summary = expenseSummaryPair.second;
@@ -355,12 +357,12 @@ private:
 		}
 		cout << string(80, '=') << endl;
 		// get the budget totals
-		auto budgetTotals = store->getBudgetTotals();
+		auto budgetTotals = budgetService.getBudgetTotals();
 		cout << incomeTotalHeader << string(20 - incomeTotalHeader.length(), ' ') << get<0>(budgetTotals) << endl;
 		cout << expenseTotalHeader << string(20 - expenseTotalHeader.length(), ' ') << get<1>(budgetTotals) << string(40 - to_string(get<0>(budgetTotals)).length(), ' ') << get<2>(budgetTotals) << endl;
 
 		// get the balance
-		double balance = store->calculateBalance();
+		double balance = budgetService.calculateBalance();
 		cout << balanceHeader << string(20 - balanceHeader.length(), ' ') << balance << endl;
 		cout << string(80, '=') << endl;
 	}
@@ -415,7 +417,7 @@ private:
 
 public:
 	static void mainMenu() {
-		Program::store = new DataStore();
+		store = DataStore::createStore();
 		int userOption;
 		do
 		{

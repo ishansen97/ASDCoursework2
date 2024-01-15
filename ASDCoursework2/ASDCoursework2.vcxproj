@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ASDCoursework2.cpp" />
+    <ClCompile Include="BudgetService.cpp" />
     <ClCompile Include="Category.cpp" />
     <ClCompile Include="CategoryExpenseSummary.cpp" />
     <ClCompile Include="DataStore.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="Transaction.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BudgetService.h" />
     <ClInclude Include="Category.h" />
     <ClInclude Include="CategoryExpenseSummary.h" />
     <ClInclude Include="DataStore.h" />
