@@ -32,5 +32,3 @@ public:
 		cout << string(indentation, '\t') << "Expense/Income: " << (accountType == 0 ? "Expense" : "Income") << endl;
 	}
 };
-
-

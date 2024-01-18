@@ -108,4 +108,3 @@ public:
 	void deleteTransaction(int id) { transactions.erase(id); }
 #pragma endregion
 };
-

@@ -19,4 +19,3 @@ public:
 	double getExpectedBudget() { return expectedBudget; }
 	double getActualBudget() { return actualBudget; }
 };
-

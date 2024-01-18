@@ -59,5 +59,3 @@ public:
 		cout << "Is Recurring: " << (isRecurring ? "Yes" : "No") << endl;
 	}
 };
-
-
