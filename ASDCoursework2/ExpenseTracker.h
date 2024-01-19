@@ -1,18 +1,61 @@
 #pragma once
-#include "DataStore.h"
+#include "Database.h"
 #include "Transaction.h"
 #include <iostream>
 #include "BudgetService.h"
+#include "ExpenseBudgetDetail.h"
 using namespace std;
 
-class Program
+class ExpenseTracker
 {
 private:
-	static DataStore* store;
+	static Database* db;
 	static BudgetService budgetService;
+#pragma region Displaying menu items
+	static void displayTransactionMenu() {
+		int transactionOption;
+		do
+		{
+			cout << "Select your transaction option." << endl;
+			cout << "1. Add new transaction" << endl;
+			cout << "2. View recent transactions." << endl;
+			cout << "3. Edit transaction" << endl;
+			cout << "4. Remove transaction" << endl;
+			cout << "5. Main Menu" << endl;
+			cout << "Enter your option: ";
+			cin >> transactionOption;
+
+			if (isInvalidUserOption(transactionOption, 1, 5)) 
+				clearConsoleAndPrintMessage("Invalid input. Please try again!", &transactionOption);
+			else
+				manageTransactionOption(transactionOption);
+		} while (transactionOption != 5);
+	}
+
+	static void displayCategoryMenu() {
+		int categoryOption;
+		do
+		{
+			cout << "Choose your category option." << endl;
+			cout << "\t 1. Add new category" << endl;
+			cout << "\t 2. View category list." << endl;
+			cout << "\t 3. Perform bulk expense category budget update." << endl;
+			cout << "\t 4. Set category budget." << endl;
+			cout << "\t 5. Main Menu" << endl;
+			cout << "Enter your option: ";
+			cin >> categoryOption;
+
+			if (isInvalidUserOption(categoryOption, 1, 5)) 
+				clearConsoleAndPrintMessage("Invalid input. Please try again!", &categoryOption);
+			else
+				manageCategoryOption(categoryOption);
+		} while (categoryOption != 5);
+	}
+#pragma endregion
+
 #pragma region Handling user options
 
-	static void handleUserOption(int option) {
+	static void manageUserOption(int option) {
 		switch (option)
 		{
 		case 1:
@@ -22,94 +65,55 @@ private:
 			displayCategoryMenu();
 			break;
 		case 3:
-			trackProgress();
+			trackBudgetProgress();
 			break;
 		default:
 			break;
 		}
 	}
 
-	static void handleTransactionOption(int option) {
+	static void manageTransactionOption(int option) {
 		switch (option)
 		{
 		case 1:
-			addTransaction();
+			addNewTransaction();
 			break;
 		case 2:
-			viewRecentTransactions();
+			viewRecentTransactionsList();
 			break;
 		case 3:
 			editTransaction();
 			break;
 		case 4:
-			deleteTransaction();
+			removeTransaction();
 			break;
 		default:
 			break;
 		}
 	}
 
-	static void handleCategoryOption(int option) {
+	static void manageCategoryOption(int option) {
 		switch (option)
 		{
 		case 1:
-			addCategory();
+			addNewCategory();
 			break;
 		case 2:
-			viewCategories();
+			viewCategoryList();
 			break;
 		case 3:
-			setCategoryBudget();
+			setCategoryBudgetInBulk();
 			break;
+		case 4:
+			setCategoryBudget();
 		default:
 			break;
 		}
-	}
-#pragma endregion
-
-#pragma region Displaying menu items
-	static void displayTransactionMenu() {
-		int transactionOption;
-		do
-		{
-			cout << "Manage your transactions here." << endl;
-			cout << "1. Add new transaction" << endl;
-			cout << "2. View recent transactions." << endl;
-			cout << "3. Edit transaction" << endl;
-			cout << "4. Delete transaction" << endl;
-			cout << "5. Main Menu" << endl;
-			cout << "Enter your option: ";
-			cin >> transactionOption;
-
-			if (isInvalidOption(transactionOption, 1, 5)) 
-				clearConsoleAndPrintMessage("Invalid input. Please try again!", &transactionOption);
-			else
-				handleTransactionOption(transactionOption);
-		} while (transactionOption != 5);
-	}
-
-	static void displayCategoryMenu() {
-		int categoryOption;
-		do
-		{
-			cout << "Manage the categories here." << endl;
-			cout << "1. Add new category" << endl;
-			cout << "2. View category list." << endl;
-			cout << "3. Specify budgets for categories." << endl;
-			cout << "4. Main Menu" << endl;
-			cout << "Enter your option: ";
-			cin >> categoryOption;
-
-			if (isInvalidOption(categoryOption, 1, 4)) 
-				clearConsoleAndPrintMessage("Invalid input. Please try again!", &categoryOption);
-			else
-				handleCategoryOption(categoryOption);
-		} while (categoryOption != 4);
 	}
 #pragma endregion
 
 #pragma region Transaction Operations
-	static void addTransaction() {
+	static void addNewTransaction() {
 		int transactionType = -1;
 		int recurring = -1;
 		bool type;
@@ -151,29 +155,29 @@ private:
 		}
 
 		cout << "Note: " << endl;
-		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		getline(cin, note);
 
-		while (!isExistingCategoryName(categoryName))
+		while (!isExistingCategory(categoryName))
 		{
 			cout << "Category: " << endl;
 			getline(cin, categoryName);
-			if (!isExistingCategoryName(categoryName))
+			if (!isExistingCategory(categoryName))
 				cout << "Invalid category name. Please try again." << endl;
 		}
 
 		// create the transaction object here.
-		category = store->getCategory(categoryName);
-		int transactionId = store->getLastTransactionId() + 1;
+		category = db->getCategory(categoryName);
+		int transactionId = db->getLastTransactionId() + 1;
 		Transaction* transaction = new Transaction(transactionId, amount, type, note, category, isRecurring);
 
-		Program::store->addTransaction(transactionId, transaction);
+		db->addNewTransaction(transactionId, transaction);
 		cout << "Transaction added successfully." << endl;
 	};
 
-	static void viewRecentTransactions() {
+	static void viewRecentTransactionsList() {
 		cout << "===== Transaction list =====" << endl;
-		for (auto pair : store->getTransactions())
+		for (auto pair : db->getTransactions())
 		{
 			pair.second->printDetails();
 			cout << "=========" << endl;
@@ -181,22 +185,22 @@ private:
 	}
 
 	static void editTransaction() {
-		int id = -1, newAmount = -1;
+		int transactionId = -1, newAmount = -1;
 		string strAmount, newNote, expenseOrIncome;
 
-		while (isInvalidNumber(id) || !isValidTransaction(id))
+		while (isInvalidNumber(transactionId) || !isValidTransaction(transactionId))
 		{
 			cout << "Please enter transaction ID to edit: " << endl;
-			cin >> id;
-			if (isInvalidNumber(id)) {
-				clearConsoleAndPrintMessage("Invalid input. Please try again.", &id, -1);
+			cin >> transactionId;
+			if (isInvalidNumber(transactionId)) {
+				clearConsoleAndPrintMessage("Invalid input. Please try again.", &transactionId, -1);
 			}
-			if (!isValidTransaction(id)) {
-				clearConsoleAndPrintMessage("Invalid transaction Id. Please try again.", &id, -1);
+			if (!isValidTransaction(transactionId)) {
+				clearConsoleAndPrintMessage("Invalid transaction Id. Please try again.", &transactionId, -1);
 			}
 		}
 
-		Transaction* transaction = store->getTransaction(id);
+		Transaction* transaction = db->getTransaction(transactionId);
 
 		cout << "Enter new amount (Press ENTER to skip):";
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -228,47 +232,47 @@ private:
 		transaction->printDetails();
 	}
 
-	static void deleteTransaction() {
-		int id = -1;
+	static void removeTransaction() {
+		int transactionId = -1;
 
-		while (isInvalidNumber(id) || !isValidTransaction(id))
+		while (isInvalidNumber(transactionId) || !isValidTransaction(transactionId))
 		{
 			cout << "Please enter transaction ID to edit: " << endl;
-			cin >> id;
-			if (isInvalidNumber(id)) {
-				clearConsoleAndPrintMessage("Invalid number. Please try again.", &id, -1);
+			cin >> transactionId;
+			if (isInvalidNumber(transactionId)) {
+				clearConsoleAndPrintMessage("Invalid number. Please try again.", &transactionId, -1);
 			}
-			if (!isValidTransaction(id)) {
-				clearConsoleAndPrintMessage("Invalid transaction Id. Please try again.", &id, -1);
+			if (!isValidTransaction(transactionId)) {
+				clearConsoleAndPrintMessage("Invalid transaction Id. Please try again.", &transactionId, -1);
 			}
 		}
 
-		store->deleteTransaction(id);
+		db->removeTransaction(transactionId);
 		cout << "Transaction deleted successfully." << endl;
 	}
 #pragma endregion
 
 #pragma region Category Operations
-	static void addCategory() {
+	static void addNewCategory() {
 		string categoryName;
 		double budgetAmt = -1;
 		int acctType = -1;
-		bool isExistingCategory = false;
-		int categoryInputPromptCount = 0;
+		bool existingCategory = false;
+		int inputPromptCount = 0;
 
-		while (isExistingCategoryName(categoryName) || categoryInputPromptCount == 0)
+		while (isExistingCategory(categoryName) || inputPromptCount == 0)
 		{
 			cout << "Enter category name: " << endl;
 			cin >> categoryName;
-			if (isExistingCategoryName(categoryName)) {
-				clearConsoleAndPrintMessage("This category name already exists. Please try again.");
+			if (isExistingCategory(categoryName)) {
+				clearConsoleAndPrintMessage("The category already exists. Please try again.");
 			}
-			categoryInputPromptCount++;
+			inputPromptCount++;
 		}
 
 		while (isInvalidNumber(budgetAmt))
 		{
-			cout << "Initial budget amount: " << endl;
+			cout << "budget amount (initial): " << endl;
 			cin >> budgetAmt;
 			if (isInvalidNumber(budgetAmt)) {
 				clearConsoleAndPrintMessage("Invalid input. Please try again.", &budgetAmt, -1);
@@ -285,15 +289,15 @@ private:
 		}
 
 		Category* newCategory = new Category(categoryName, budgetAmt, acctType);
-		store->addCategory(categoryName, newCategory);
+		db->addNewCategory(categoryName, newCategory);
 
 		cout << "Category added successfully." << endl;
 	}
 
-	static void viewCategories() {
+	static void viewCategoryList() {
 		cout << "===== List of categories =====" << endl;
 
-		for (auto pair : store->getCategories())
+		for (auto pair : db->getCategories())
 		{
 			pair.second->printDetails();
 			cout << "-------------------------" << endl;
@@ -302,33 +306,59 @@ private:
 		cout << "==============================" << endl;
 	}
 
-	static void setCategoryBudget() {
-		for (auto pair : store->getCategories(0))
+	static void setCategoryBudgetInBulk() {
+		for (auto pair : db->getCategories(db->getAccountTypes()["Expense"]))
 		{
-			double budget = -1;
+			double categoryBudget = -1;
 			cout << "===============" << endl;
 			cout << "Category: " << pair.first << endl;
 			cout << "Current budget: " << pair.second->getBudget() << endl;
 			cout << "New budget: ";
-			while (isInvalidNumber(budget))
+			while (isInvalidNumber(categoryBudget))
 			{
-				cin >> budget;
-				if (isInvalidNumber(budget))
-					clearConsoleAndPrintMessage("Invalid input. Please try again.", &budget, -1);
+				cin >> categoryBudget;
+				if (isInvalidNumber(categoryBudget))
+					clearConsoleAndPrintMessage("Invalid input. Please try again.", &categoryBudget, -1);
 				cout << "===============" << endl;
 			}
 
-			pair.second->setBudget(budget);
+			pair.second->setBudget(categoryBudget);
 		}
 
-		cout << "Budgets have been set." << endl;
+		cout << "The category budgets have been set." << endl;
+	}
 
+	static void setCategoryBudget() {
+		string categoryName;
+		double budgetAmt = -1;
+
+		while (!isExistingCategory(categoryName))
+		{
+			cout << "Please enter the category to set the budget." << endl;
+			cin >> categoryName;
+			if (!isExistingCategory(categoryName))
+				clearConsoleAndPrintMessage("Invalid category. Please try again.");
+		}
+
+		Category* category = db->getCategory(categoryName);
+
+		while (isInvalidNumber(budgetAmt))
+		{
+			cout << "Set the budget amount: " << endl;
+			cin >> budgetAmt;
+			if (isInvalidNumber(budgetAmt))
+				clearConsoleAndPrintMessage("Invalid amount. Please try again.", &budgetAmt, -1);
+
+		}
+
+		category->setBudget(budgetAmt);
+		cout << "The budget for " << categoryName << " has been set." << endl;
 	}
 #pragma endregion
 
 #pragma region Track Progress operations
 
-	static void trackProgress() {
+	static void trackBudgetProgress() {
 		string incomeHeader = "INCOME";
 		string incomeAmountHeader = "AMOUNT";
 		string header1 = "EXPENSE";
@@ -349,11 +379,11 @@ private:
 		// display expenses
 		cout << string(80, '=') << endl;
 		cout << header1 << string(20 - header1.length(), ' ') << header2 << string(30 - header2.length(), ' ') << header3 << endl;
-		for (auto expenseSummaryPair : budgetService.getExpenseSummaries())
+		for (auto expenseSummary : budgetService.getExpenseBudget())
 		{
-			string categoryName = expenseSummaryPair.first;
-			CategoryExpenseSummary* summary = expenseSummaryPair.second;
-			cout << categoryName << string(20 - categoryName.length(), ' ') << summary->getExpectedBudget() << string(40 - to_string(summary->getExpectedBudget()).length(), ' ') << summary->getActualBudget() << endl;
+			string categoryName = expenseSummary.first;
+			ExpenseBudgetDetail* expenseDetail = expenseSummary.second;
+			cout << categoryName << string(20 - categoryName.length(), ' ') << expenseDetail->getExpectedBudget() << string(40 - to_string(expenseDetail->getExpectedBudget()).length(), ' ') << expenseDetail->getActualBudget() << endl;
 		}
 		cout << string(80, '=') << endl;
 		// get the budget totals
@@ -369,36 +399,36 @@ private:
 #pragma endregion
 
 #pragma region helpers
-	static bool isInvalidOption(int option, int low, int high) {
+	static bool isInvalidUserOption(int option, int low, int high) {
 		return (cin.fail() || option < low || option > high);
 	}
 
 	static void clearConsoleAndPrintMessage(string message, int* optionPtr, int value = 0) {
 		cin.clear();  // Clear the error flag
-		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cout << message << endl;
 		*optionPtr = value;
 	}
 
 	static void clearConsoleAndPrintMessage(string message, double* optionPtr, int value = 0) {
 		cin.clear();  // Clear the error flag
-		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cout << message << endl;
 		*optionPtr = value;
 	}
 
 	static void clearConsoleAndPrintMessage(string message) {
 		cin.clear();  // Clear the error flag
-		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cout << message << endl;
 	}
 
-	static bool isExistingCategoryName(string catName) {
-		return store->isCategoryAvailable(catName);
+	static bool isExistingCategory(string catName) {
+		return db->categoryExist(catName);
 	}
 
 	static bool isValidTransaction(int transactionId) {
-		return store->isTransactionAvailable(transactionId);
+		return db->transactionExist(transactionId);
 	}
 
 	static bool isValidFieldOption(int input, const int(&options) []) {
@@ -416,8 +446,8 @@ private:
 
 
 public:
-	static void mainMenu() {
-		store = DataStore::createStore();
+	static void displayMainMenu() {
+		db = Database::createDatabase();
 		int userOption;
 		do
 		{
@@ -425,16 +455,16 @@ public:
 			cout << "Please select your option." << endl;
 			cout << "\t 1. Manage Transactions." << endl;
 			cout << "\t 2. Manage Categories." << endl;
-			cout << "\t 3. Track your progress." << endl;
+			cout << "\t 3. View Budget progress." << endl;
 			cout << "\t 4. Exit." << endl;
 			cout << "Enter your option: ";
 			cin >> userOption;
 
-			if (isInvalidOption(userOption, 1, 4)) {
+			if (isInvalidUserOption(userOption, 1, 4)) {
 				clearConsoleAndPrintMessage("Invalid input. Please try again!", &userOption);
 			}
 			else
-				handleUserOption(userOption);
+				manageUserOption(userOption);
 
 		} while (userOption != 4);
 	}

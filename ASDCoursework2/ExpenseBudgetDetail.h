@@ -2,14 +2,14 @@
 #include "Category.h"
 using namespace std;
 
-class CategoryExpenseSummary
+class ExpenseBudgetDetail
 {
 private:
 	Category* category;
 	double expectedBudget, actualBudget;
 
 public:
-	CategoryExpenseSummary(Category* cat, double expectedBudgt, double actualBudgt)
+	ExpenseBudgetDetail(Category* cat, double expectedBudgt, double actualBudgt)
 	{
 		this->category = cat;
 		this->expectedBudget = expectedBudgt;

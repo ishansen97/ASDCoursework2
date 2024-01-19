@@ -26,6 +26,14 @@ public:
 		this->isRecurring = recurring;
 	};
 
+#pragma region setters
+	void setAmount(int amt) { amount = amt; }
+	void setNote(string nt) { note = nt; }
+	void setRecurring(bool rec) { isRecurring = rec; }
+	void setTransactionType(int expenseOrIncome) { isExpense = expenseOrIncome == 0; }
+#pragma endregion
+
+#pragma region Getters
 	int getAmount() { return amount; }
 	string getTransactionType() {
 		if (isExpense) return "Expense";
@@ -40,14 +48,7 @@ public:
 
 	string getCategoryName() { return category->getName(); }
 	Category* getCategory() { return category; }
-
-	#pragma region setters
-	void setAmount(int amt) { amount = amt; }
-	void setNote(string nt) { note = nt; }
-	void setRecurring(bool rec) { isRecurring = rec; }
-	void setTransactionType(int expenseOrIncome) { isExpense = expenseOrIncome == 0; }
-	#pragma endregion
-
+#pragma endregion
 
 	void printDetails() {
 		cout << "Id: " << id << endl;

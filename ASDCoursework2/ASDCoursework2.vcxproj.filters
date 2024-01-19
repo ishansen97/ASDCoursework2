@@ -44,13 +44,13 @@
     <ClInclude Include="Category.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Program.h">
+    <ClInclude Include="ExpenseTracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DataStore.h">
+    <ClInclude Include="Database.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CategoryExpenseSummary.h">
+    <ClInclude Include="ExpenseBudgetDetail.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BudgetService.h">

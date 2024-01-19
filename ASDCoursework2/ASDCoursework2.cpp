@@ -2,14 +2,14 @@
 //
 
 #include <iostream>
-#include "Program.h"
+#include "ExpenseTracker.h"
 using namespace std;
 
-DataStore* Program::store;
-DataStore* DataStore::storeInstance = 0;
-BudgetService Program::budgetService;
+Database* ExpenseTracker::db;
+Database* Database::dbInstance = 0;
+BudgetService ExpenseTracker::budgetService;
 int main()
 {
-    Program::mainMenu();  
+    ExpenseTracker::displayMainMenu();  
     return 0;
 }
