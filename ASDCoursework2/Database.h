@@ -25,11 +25,11 @@ private:
 
 		transactions =
 		{
-			{1, new Transaction(2, 2500, true, "filling gas", categories["fuel"], false)},
-			{2, new Transaction(3, 2500, true, "enjoying concert", categories["entertainment"], false)},
-			{3, new Transaction(4, 5500, true, "gifts for myself", categories["gifts"], false)},
-			{4, new Transaction(5, 13500, true, "solo travelling", categories["travel"], false)},
-			{5, new Transaction(7, 150500, false, "Monthly salary", categories["salary"], true)}
+			{1, new Transaction(1, 2500, true, "filling gas", categories["fuel"], false)},
+			{2, new Transaction(2, 2500, true, "enjoying concert", categories["entertainment"], false)},
+			{3, new Transaction(3, 5500, true, "gifts for myself", categories["gifts"], false)},
+			{4, new Transaction(4, 13500, true, "solo travelling", categories["travel"], false)},
+			{5, new Transaction(5, 150500, false, "Monthly salary", categories["salary"], true)}
 		};
 
 		accountTypes =
